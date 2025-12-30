@@ -13,7 +13,6 @@ body{
   text-align:center;
 }
 .hidden{display:none}
-
 header{padding:30px}
 h1{cursor:pointer}
 
@@ -46,7 +45,7 @@ button{
   border-radius:10px;
 }
 
-/* キーパッド */
+/* パスワード表示 */
 input{
   width:100%;
   padding:12px;
@@ -57,6 +56,8 @@ input{
   color:#0ff;
   border:none;
 }
+
+/* キーパッド */
 .keypad{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -75,7 +76,6 @@ input{
 <!-- 利用者画面 -->
 <header id="userView">
   <h1 id="title">スペレンタル予約</h1>
-
   <div class="actions">
     <button class="reserve" onclick="reserve()">予約する</button>
     <button class="admin">管理者パネル</button>
@@ -104,6 +104,10 @@ input{
     <button onclick="add('5')">5</button>
     <button onclick="add('6')">6</button>
 
+    <button onclick="add('7')">7</button>
+    <button onclick="add('8')">8</button>
+    <button onclick="add('9')">9</button>
+
     <div class="empty"></div>
     <button onclick="add('0')">0</button>
     <button onclick="clearPass()">C</button>
@@ -113,7 +117,7 @@ input{
 <script>
 let reservationName = null;
 
-// 予約
+// 予約（仮）
 function reserve(){
   const name = prompt("名前を入力");
   if(!name) return;
@@ -121,12 +125,12 @@ function reserve(){
   alert("予約完了");
 }
 
-// タイトル → パスワード
+// タイトル → パスワード表示
 document.getElementById("title").onclick = ()=>{
   document.getElementById("passwordBox").classList.remove("hidden");
 };
 
-// キーパッド入力
+// キーパッド処理
 function add(n){
   const input = document.getElementById("passInput");
   if(input.value.length >= 5) return;
@@ -162,7 +166,6 @@ function toggleNotify(){
   }
   n.classList.toggle("hidden");
 }
-
 function approve(){ reservationName=null; toggleNotify(); }
 function reject(){ reservationName=null; toggleNotify(); }
 </script>
