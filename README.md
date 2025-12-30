@@ -3,156 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <title>スペレンタル予約</title>
+
 <style>
-body {
-  font-family: sans-serif;
-  background: #f5f5f5;
-  text-align: center;
+body{
+  margin:0;
+  background:#0b0b0e;
+  color:#eaeaf0;
+  font-family:Segoe UI,sans-serif;
+  text-align:center;
 }
-button {
-  padding: 10px 16px;
-  margin: 5px;
-  font-size: 16px;
-}
-.hidden { display: none; }
+.hidden{display:none}
+header{padding:30px}
+h1{cursor:pointer}
 
-#adminPanel {
-  background: #fff;
-  padding: 15px;
-  margin: 10px;
-  border-radius: 10px;
-  position: relative;
-}
-#closeBtn {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  font-size: 20px;
-  cursor: pointer;
+.actions{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  margin-top:40px;
 }
 
-.keypad button {
-  width: 60px;
-  height: 50px;
-  font-size: 18px;
+button{
+  padding:14px 24px;
+  font-size:16px;
+  font-weight:700;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-.red { background: #ff6b6b; }
-.green { background: #51cf66; }
-.yellow { background: #ffd43b; }
+.reserve{background:#2ecc71;color:#000}
+.admin{background:#2c2c36;color:#fff}
+.stop{background:#e74c3c;color:#fff}
+.play{background:#2ecc71;color:#000}
+.reset{background:#f1c40f;color:#000}
 
-table {
-  margin: auto;
-  border-collapse: collapse;
+.bell{font-size:22px;cursor:pointer}
+.bell.notify{color:#0ff}
+
+.card{
+  background:#15151c;
+  margin:30px auto;
+  padding:20px;
+  width:90%;
+  max-width:420px;
+  border-radius:10px;
 }
-td, th {
-  border: 1px solid #aaa;
-  padding: 6px 10px;
+
+/* パスワード */
+input{
+  width:100%;
+  padding:12px;
+  font-size:20px;
+  text-align:center;
+  margin-bottom:20px;
+  background:#000;
+  color:#0ff;
+  border:none;
 }
+
+/* キーパッド */
+.keypad{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.keypad button{
+  height:60px;
+  font-size:20px;
+}
+.empty{visibility:hidden}
 </style>
 </head>
 
 <body>
 
-<h2>利用者画面</h2>
-<h1>スペレンタル予約</h1>
+<!-- 利用者画面 -->
+<header id="userView">
+  <h1 id="title">スペレンタル予約</h1>
+  <div class="actions">
+    <button class="reserve" id="reserveBtn" onclick="reserve()">予約する</button>
+    <button class="admin" onclick="openPassword()">管理者パネル</button>
+    <span id="userBell" class="bell">🔔</span>
+  </div>
+  <div id="userMsg"></div>
+</header>
 
-<button>予約する</button>
-<button onclick="openKeypad()">管理者パネル</button>
-<button>🔔</button>
+<!-- 管理者画面 -->
+<header id="adminView" class="hidden">
+  <h1>スペレンタル予約 <span class="bell" onclick="toggleNotify()">🔔</span></h1>
+</header>
 
-<!-- キーパッド -->
-<div id="keypad" class="hidden">
-  <h3>パスワード入力</h3>
-  <div id="passDisplay">●●●●●</div>
+<!-- 管理者パネル -->
+<div id="adminPanel" class="card hidden">
+  <button class="stop" onclick="stopReserve()">予約停止</button>
+  <button class="play" onclick="resumeReserve()">予約再生</button>
+  <button class="reset" onclick="resetReserve()">再予約可能</button>
+
+  <hr><h3>チケット</h3>
+  <input id="ticketName" placeholder="名前">
+  <input id="ticketCount" type="number" placeholder="回数">
+  <button onclick="addTicket()">追加</button>
+  <div id="tickets"></div>
+</div>
+
+<!-- 通知 -->
+<div id="notify" class="card hidden"></div>
+
+<!-- パスワード -->
+<div id="passwordBox" class="card hidden">
+  <div>管理者パスワード</div>
+  <input id="passInput" type="password" readonly>
 
   <div class="keypad">
-    <div>
-      <button onclick="press(1)">1</button>
-      <button onclick="press(2)">2</button>
-      <button onclick="press(3)">3</button>
-    </div>
-    <div>
-      <button onclick="press(4)">4</button>
-      <button onclick="press(5)">5</button>
-      <button onclick="press(6)">6</button>
-    </div>
-    <div>
-      <button onclick="press(7)">7</button>
-      <button onclick="press(8)">8</button>
-      <button onclick="press(9)">9</button>
-    </div>
-    <div>
-      <button style="visibility:hidden">x</button>
-      <button onclick="press(0)">0</button>
-      <button onclick="clearPass()">C</button>
-    </div>
+    <button onclick="add('1')">1</button>
+    <button onclick="add('2')">2</button>
+    <button onclick="add('3')">3</button>
+    <button onclick="add('4')">4</button>
+    <button onclick="add('5')">5</button>
+    <button onclick="add('6')">6</button>
+    <button onclick="add('7')">7</button>
+    <button onclick="add('8')">8</button>
+    <button onclick="add('9')">9</button>
+    <div class="empty"></div>
+    <button onclick="add('0')">0</button>
+    <button onclick="clearPass()">C</button>
   </div>
 </div>
 
-<!-- 管理者パネル -->
-<div id="adminPanel" class="hidden">
-  <div id="closeBtn" onclick="closeAdmin()">❌</div>
-
-  <h2>管理者パネル</h2>
-
-  <button class="red">予約停止</button>
-  <button class="green">予約再生</button>
-  <button class="yellow">再予約可能</button>
-
-  <h3>チケット</h3>
-
-  <input id="nameInput" placeholder="名前">
-  <input id="countInput" type="number" placeholder="回数">
-  <button onclick="addTicket()">追加</button>
-
-  <table id="ticketTable">
-    <tr><th>名前</th><th>回数</th><th>削除</th></tr>
-  </table>
-</div>
-
 <script>
-let input = "";
-const PASSWORD = "36994";
+let state = JSON.parse(localStorage.getItem("state")) || {
+  stopped:false,
+  reservation:null,
+  notify:false,
+  tickets:[]
+};
 
-function openKeypad() {
-  document.getElementById("keypad").classList.remove("hidden");
+function save(){ localStorage.setItem("state",JSON.stringify(state)); updateUI(); }
+
+function reserve(){
+  if(state.stopped){ alert("予約停止中"); return; }
+  const name = prompt("ニックネーム");
+  if(!name) return;
+  state.reservation = name;
+  state.notify = true;
+  save();
 }
 
-function press(num) {
-  input += num;
-  if (input.length === PASSWORD.length) {
-    if (input === PASSWORD) {
-      document.getElementById("keypad").classList.add("hidden");
-      document.getElementById("adminPanel").classList.remove("hidden");
-    }
-    input = "";
+function updateUI(){
+  document.getElementById("reserveBtn").disabled = state.stopped || state.reservation;
+  document.getElementById("userMsg").innerText =
+    state.stopped ? "予約停止中" : "";
+  document.getElementById("userBell").classList.toggle("notify",state.notify);
+
+  const t = document.getElementById("tickets");
+  t.innerHTML="";
+  state.tickets.forEach((tk,i)=>{
+    t.innerHTML+=`${tk.name} ${tk.count} <button onclick="delTicket(${i})">🗑️</button><br>`;
+  });
+}
+
+function openPassword(){
+  document.getElementById("passwordBox").classList.remove("hidden");
+}
+
+function add(n){
+  const i=document.getElementById("passInput");
+  if(i.value.length>=5) return;
+  i.value+=n;
+  if(i.value.length===5) check();
+}
+function clearPass(){ document.getElementById("passInput").value=""; }
+
+function check(){
+  const i=document.getElementById("passInput");
+  if(i.value==="36994"){
+    passwordBox.classList.add("hidden");
+    userView.classList.add("hidden");
+    adminView.classList.remove("hidden");
+    adminPanel.classList.remove("hidden");
+  }else{ alert("違います"); clearPass(); }
+}
+
+function toggleNotify(){
+  const n=document.getElementById("notify");
+  if(!state.reservation){
+    n.innerHTML="通知なし";
+  }else{
+    n.innerHTML=`${state.reservation} が予約しました<br><br>
+    <button onclick="approve()">承認</button>
+    <button onclick="reject()">拒否</button>`;
   }
+  n.classList.toggle("hidden");
 }
 
-function clearPass() {
-  input = "";
+function approve(){ state.reservation=null; state.notify=false; save(); }
+function reject(){ state.reservation=null; state.notify=true; save(); }
+
+function stopReserve(){ state.stopped=true; save(); }
+function resumeReserve(){ state.stopped=false; save(); }
+function resetReserve(){ state.reservation=null; save(); }
+
+function addTicket(){
+  const n=ticketName.value;
+  const c=Number(ticketCount.value);
+  if(!n||c<=0) return;
+  state.tickets.push({name:n,count:c});
+  save();
 }
+function delTicket(i){ state.tickets.splice(i,1); save(); }
 
-function closeAdmin() {
-  document.getElementById("adminPanel").classList.add("hidden");
-  openKeypad();
-}
-
-function addTicket() {
-  const name = nameInput.value;
-  const count = countInput.value;
-  if (!name || !count) return;
-
-  const row = ticketTable.insertRow();
-  row.insertCell(0).innerText = name;
-  row.insertCell(1).innerText = count;
-  row.insertCell(2).innerHTML = "🗑️";
-  row.cells[2].onclick = () => row.remove();
-
-  nameInput.value = "";
-  countInput.value = "";
-}
+updateUI();
 </script>
 
 </body>
